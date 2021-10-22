@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
@@ -18,3 +19,11 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class CustomUser(models.Model):
+    """
+        Stores additional information about the user.
+     """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    api_token = models.CharField(max_length=100, blank=True, null=True, unique=True)
