@@ -18,7 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class EventApiView( mixins.ListModelMixin, viewsets.GenericViewSet):
+class EventApiView(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
