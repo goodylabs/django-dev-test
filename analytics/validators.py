@@ -16,7 +16,7 @@ class LessThanNowValidator:
     """
     Validator checking that the date is not later than current date and time
     """
-    message = 'The date cannot be later current date and time.'
+    message = 'The date cannot be later than current date and time.'
     code = 'future_error'
 
     def __init__(self, message: str = None, code: str = None):

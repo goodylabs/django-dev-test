@@ -1,6 +1,5 @@
-import json
-
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from rest_framework import permissions, mixins, status
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -19,29 +18,20 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class EventApiView(mixins.ListModelMixin, viewsets.GenericViewSet):
+class EventApiView( mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
     @action(methods=['POST'], detail=False)
     def post(self, request):
-        raw = json.dumps(request.data)
-        data = json.loads(raw)
-        name = data.get('name')
-        additional_data = data.get('additional_data')
+        tutorial_serializer = EventSerializer(data=request.data)
+        if tutorial_serializer.is_valid():
+            tutorial_serializer.save()
+            return Response(tutorial_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(tutorial_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        event_data = {
-            'name': name,
-            'additional_data': additional_data,
-        }
-
-        event = Event.objects.create(**event_data)
-
-        data = {
-            "message": f"New event created with id: {event.id}"
-        }
-        serializer = EventSerializer(data=event_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(methods=['GET'], detail=False)
+    def get_all_events(self, request):
+        events = Event.objects.all()
+        events_serializer = EventSerializer(events, many=True)
+        return JsonResponse(events_serializer.data, safe=False)

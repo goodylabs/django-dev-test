@@ -16,11 +16,3 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
-
-    def validate(self, data):
-        """Checks if name length is shorter than 255 characters."""
-        name = data['name']
-
-        if len(name) > 10:
-            raise serializers.ValidationError('Name of event is too long.')
-        return data
