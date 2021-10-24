@@ -4,6 +4,7 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from django.contrib.auth.models import User
 from rest_framework.exceptions import NotAuthenticated
 
+
 class EventCreate(generics.CreateAPIView):
     serializer_class = EventSerializer
     authentication_classes = (TokenAuthentication, SessionAuthentication)
@@ -13,4 +14,3 @@ class EventCreate(generics.CreateAPIView):
             serializer.save(created_by=User.objects.get(username=self.request.user))
         else:
             raise NotAuthenticated()
-
