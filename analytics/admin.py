@@ -1,3 +1,13 @@
-# from django.contrib import admin
+from django.contrib import admin
 
-# Register your models here.
+from analytics.models import (
+    Event,
+    CustomUser,
+)
+
+admin.site.register(CustomUser)
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'created_by__username']
