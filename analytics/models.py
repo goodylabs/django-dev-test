@@ -6,9 +6,9 @@ from rest_framework.authtoken.models import Token
 
 
 class Event(models.Model):
-    name = models.CharField(max_length=255, blank=False)
+    name = models.CharField(max_length=255, blank=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    additional_data = models.TextField(blank=True)
+    additional_data = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='events',
