@@ -1,5 +1,5 @@
-from django.contrib import auth
 import django.core.exceptions
+from django.contrib import auth
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -17,7 +17,7 @@ class EventModelTests(TestCase):
             username='EMT1UName')
         cls.user.save()
         for create_kwargs in [
-                {'name': 'EMT1Name', 'created_by': cls.user },
+                {'name': 'EMT1Name', 'created_by': cls.user},
                 {
                     'name': 'EMT2Name',
                     'created_by': cls.user,
@@ -101,3 +101,18 @@ class EventAPISerializerTests(APITestCase):
         ac_response = authorized_client.post('/api/events', {
             'name': 'EST1Name', })
         self.assertEqual(status.HTTP_201_CREATED, ac_response.status_code)
+
+
+class AnalyticsTokenModelTests(TestCase):
+    # AnalyticsToken model tests.
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = django.contrib.auth.get_user_model().objects.create(
+            username='ATMT1Uname')
+        cls.user.save()
+
+    def test_token(self):
+        """Test the new user for api_token presence and length."""
+        self.assertIsNotNone(self.user.api_token)
+        self.assertEqual(len(self.user.api_token.key), 100)
