@@ -1,8 +1,10 @@
 # from django.shortcuts import render
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import (
+    api_view, authentication_classes, permission_classes)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from . import models, serializers
+from . import authentication, models, serializers
 
 # Create your views here.
 
@@ -14,6 +16,8 @@ def home(_request):
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([authentication.AnalyticsTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def event_list(request):
     """List all events or create a new event."""
     if request.method == 'GET':
@@ -23,6 +27,6 @@ def event_list(request):
     if request.method == 'POST':
         serializer = serializers.EventSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
