@@ -12,10 +12,8 @@ from . import authentication
 @receiver(models.signals.post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **_kwargs):
     """Provide tokens to users automatically."""
-    print(sender, instance, created)
     if created:
         token = authentication.AnalyticsToken.objects.create(user=instance)
-        print(token)
         token.save()
 
 

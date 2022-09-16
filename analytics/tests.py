@@ -1,7 +1,8 @@
+from django.contrib import auth
 import django.core.exceptions
 from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from . import models
 
 # Create your tests here.
@@ -12,11 +13,22 @@ class EventModelTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.user = django.contrib.auth.get_user_model().objects.create(
+            username='EMT1UName')
+        cls.user.save()
         for create_kwargs in [
-                {'name': 'EMT1Name', },
-                {'name': 'EMT2Name', 'additional_data': 'EMT1Ad'},
-                {'name': 'EMT3Name', 'additional_data': 'x' * 257},
-                {'name': 'EMT4Name_' + 'x' * (255 - len('EMT4Name_'))}, ]:
+                {'name': 'EMT1Name', 'created_by': cls.user },
+                {
+                    'name': 'EMT2Name',
+                    'created_by': cls.user,
+                    'additional_data': 'EMT1Ad'},
+                {
+                    'name': 'EMT3Name',
+                    'created_by': cls.user,
+                    'additional_data': 'x' * 257},
+                {
+                    'name': 'EMT4Name_' + 'x' * (255 - len('EMT4Name_')),
+                    'created_by': cls.user}, ]:
             event = models.Event.objects.create(**create_kwargs)
             event.save()
             event.full_clean()
@@ -40,7 +52,8 @@ class EventModelTests(TestCase):
     def test_max_length(self):
         """Attempt to create event with overly long name."""
         validation_error = False
-        event = models.Event.objects.create(name='x' * 256)
+        event = models.Event.objects.create(
+            name='x' * 256, created_by=self.user)
         try:
             event.full_clean()
         except django.core.exceptions.ValidationError:
@@ -51,10 +64,21 @@ class EventModelTests(TestCase):
 class EventAPIViewTests(TestCase):
     # Event API view tests.
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = django.contrib.auth.get_user_model().objects.create(
+            username='EMT1UName')
+        cls.user.save()
+
     def test_url_exists(self):
         """Check '/api/events/ URL."""
         response = self.client.get('/api/events')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 401)
+        authorized_client = APIClient()
+        authorized_client.credentials(
+            HTTP_AUTHORIZATION=f'Bearer {self.user.api_token.key}')
+        ac_response = authorized_client.get('/api/events')
+        self.assertEqual(ac_response.status_code, 200)
 
 
 class EventAPISerializerTests(APITestCase):
@@ -64,4 +88,4 @@ class EventAPISerializerTests(APITestCase):
         """Attemt to post minimal piece of data to '/api/events' endpoint."""
         response = self.client.post('/api/events', {
             'name': 'EST1Name', })
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, response.status_code)
