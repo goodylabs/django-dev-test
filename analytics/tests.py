@@ -73,19 +73,31 @@ class EventAPIViewTests(TestCase):
     def test_url_exists(self):
         """Check '/api/events/ URL."""
         response = self.client.get('/api/events')
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(status.HTTP_401_UNAUTHORIZED, response.status_code)
         authorized_client = APIClient()
         authorized_client.credentials(
             HTTP_AUTHORIZATION=f'Bearer {self.user.api_token.key}')
         ac_response = authorized_client.get('/api/events')
-        self.assertEqual(ac_response.status_code, 200)
+        self.assertEqual(status.HTTP_200_OK, ac_response.status_code)
 
 
 class EventAPISerializerTests(APITestCase):
     # Event API/serializer tests.
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = django.contrib.auth.get_user_model().objects.create(
+            username='EMT1UName')
+        cls.user.save()
 
     def test_post(self):
         """Attemt to post minimal piece of data to '/api/events' endpoint."""
         response = self.client.post('/api/events', {
             'name': 'EST1Name', })
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, response.status_code)
+        authorized_client = APIClient()
+        authorized_client.credentials(
+            HTTP_AUTHORIZATION=f'Bearer {self.user.api_token.key}')
+        ac_response = authorized_client.post('/api/events', {
+            'name': 'EST1Name', })
+        self.assertEqual(status.HTTP_201_CREATED, ac_response.status_code)
