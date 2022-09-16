@@ -6,4 +6,5 @@ from .models import Event
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    list_display = ['name', 'created_at']
     search_fields = ['name']
