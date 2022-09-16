@@ -1,17 +1,22 @@
+import binascii
+import os
 from django.conf import settings
 from django.db import models
-from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 
 # Custom token-based authentication.
 
 
 class AnalyticsToken(models.Model):
+    # Reimplementation of Token with longer keys.
+
     key = models.CharField('Key', max_length=100, primary_key=True)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='api_token',
         on_delete=models.CASCADE, verbose_name='User',
     )
+    # It is ``created_at'' instead of ``created'' for the consistency with
+    # the listed tasks and event model.
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -21,16 +26,16 @@ class AnalyticsToken(models.Model):
 
     @property
     def created(self):
+        """Alias added for Token compatibility."""
         return self.created_at
 
     @classmethod
     def generate_key(cls):
+        """Generate 100 characters long key."""
         return binascii.hexlify(os.urandom(50)).decode()
 
 
 class AnalyticsTokenAuthentication(TokenAuthentication):
+    # Subclass of TokenAuthentication with custom keyword and token model.
     keyword = 'Bearer'
     model = AnalyticsToken
-
-    def __init__(self, *args, **kwargs):
-        super(AnalyticsTokenAuthentication, self).__init__(*args, **kwargs)
