@@ -13,8 +13,7 @@ class EventModelTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = django.contrib.auth.get_user_model().objects.create(
-            username='EMT1UName')
+        cls.user = auth.get_user_model().objects.create(username='EMT1UName')
         cls.user.save()
         for create_kwargs in [
                 {'name': 'EMT1Name', 'created_by': cls.user},
@@ -66,8 +65,7 @@ class EventAPIViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = django.contrib.auth.get_user_model().objects.create(
-            username='EMT1UName')
+        cls.user = auth.get_user_model().objects.create(username='EMT1UName')
         cls.user.save()
 
     def test_url_exists(self):
@@ -86,8 +84,7 @@ class EventAPISerializerTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = django.contrib.auth.get_user_model().objects.create(
-            username='EMT1UName')
+        cls.user = auth.get_user_model().objects.create(username='EMT1UName')
         cls.user.save()
 
     def test_post(self):
