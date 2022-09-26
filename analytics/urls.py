@@ -11,5 +11,5 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('', views.home, name='home'),
     path('api', include(router.urls)),
-    path('api/events', views.event_list),
+    path('api/events', views.EventList.as_view()),
 ]
