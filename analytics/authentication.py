@@ -4,8 +4,6 @@ from django.conf import settings
 from django.db import models, utils, transaction
 from rest_framework.authentication import TokenAuthentication
 
-import random
-
 # Custom token-based authentication.
 
 
