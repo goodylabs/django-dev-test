@@ -20,7 +20,7 @@ def create_auth_token(sender, instance=None, created=False, **_kwargs):
 class Event(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    additional_data = models.TextField(blank=True, default='')
+    additional_data = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE, )
