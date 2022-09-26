@@ -43,7 +43,7 @@ class EventModelTests(TestCase):
 
     def test_additional_data(self):
         """Test additional_data of the created entities."""
-        self.assertEqual(models.Event.objects.get(id=1).additional_data, '')
+        self.assertIsNone(models.Event.objects.get(id=1).additional_data)
         self.assertIsNotNone(models.Event.objects.get(id=2).additional_data)
         self.assertTrue(
             len(models.Event.objects.get(id=3).additional_data) > 256)
@@ -88,7 +88,7 @@ class EventAPISerializerTests(APITestCase):
         cls.user.save()
 
     def test_post(self):
-        """Attemt to post minimal piece of data to '/api/events' endpoint."""
+        """Attempt to post minimal piece of data to '/api/events' endpoint."""
         response = self.client.post('/api/events', {
             'name': 'EST1Name', })
         self.assertEqual(status.HTTP_401_UNAUTHORIZED, response.status_code)
@@ -98,6 +98,9 @@ class EventAPISerializerTests(APITestCase):
         ac_response = authorized_client.post('/api/events', {
             'name': 'EST1Name', })
         self.assertEqual(status.HTTP_201_CREATED, ac_response.status_code)
+        del_response = authorized_client.delete('/api/events')
+        self.assertEqual(
+            status.HTTP_405_METHOD_NOT_ALLOWED, del_response.status_code)
 
 
 class AnalyticsTokenModelTests(TestCase):
