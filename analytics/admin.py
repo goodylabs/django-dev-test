@@ -22,6 +22,9 @@ admin.site.unregister(TokenProxy)
 class AnalyticsTokenAdmin(admin.ModelAdmin):
     list_display = ('user', 'key', )
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
 
 # Add column to the users list.
 UserAdmin.list_display += ('api_token_url', )
