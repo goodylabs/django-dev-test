@@ -1,8 +1,10 @@
 import binascii
 import os
 from django.conf import settings
-from django.db import models
+from django.db import models, utils, transaction
 from rest_framework.authentication import TokenAuthentication
+
+import random
 
 # Custom token-based authentication.
 
@@ -22,7 +24,12 @@ class AnalyticsToken(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
-        return super().save(*args, **kwargs)
+        try:
+            with transaction.atomic():
+                return super().save(*args, **kwargs)
+        except utils.IntegrityError:
+            self.key = None
+            return self.save(*args, **kwargs)
 
     @property
     def created(self):
