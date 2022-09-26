@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
+from rest_framework import exceptions
+from . import authentication
 
 # Create your middleware here.
 
@@ -13,12 +15,13 @@ class AnalyticsTokenAuthMiddleware(MiddlewareMixin):
 
     def __call__(self, request):
         """Modern middleware call."""
-        user = request.user
-        if user.is_authenticated:
+        auth_result = None
+        try:
+            auth_result = (
+                authentication.AnalyticsTokenAuthentication().authenticate(
+                    request))
+        except exceptions.AuthenticationFailed:
+            pass
+        if auth_result:
             return self.get_response(request)
         return HttpResponse('Unauthorised', status=401)
-
-    def process_view(
-            self, request, _view_func, *_view_args, **_view_kwargs):
-        """MiddlewareMixin-compatible middleware call."""
-        return self(request)
